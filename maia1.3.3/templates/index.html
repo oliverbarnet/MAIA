@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MAIA</title>
+<style>
+  /* Spinner animation */
+  @keyframes spin {
+    to { transform: rotate(360deg); }
+  }
+
+  :root {
+    --bg: #f5f3f0;
+    --accent: #d8b08c;
+    --accent-dark: #b4845c;
+    --text: #333;
+    --soft: #e8e6e4;
+  }
+
+  /* Reset */
+  *, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    background-color: var(--bg);
+    font-family: 'Courier New', monospace;
+    color: var(--text);
+    margin: 0;
+    padding: 0;
+    line-height: 1.5;
+  }
+
+  header {
+    background: linear-gradient(90deg, var(--accent-dark), var(--accent));
+    color: white;
+    padding: 24px 20px;
+    text-align: center;
+    font-size: 2.25rem;
+    letter-spacing: 2.5px;
+    font-weight: 900;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    user-select: none;
+  }
+
+  main {
+    padding: 50px 25px 60px;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .ascii-art {
+    font-family: monospace;
+    white-space: pre;
+    color: var(--accent-dark);
+    text-align: center;
+    margin-bottom: 40px;
+    background: var(--soft);
+    padding: 25px 30px;
+    border-radius: 12px;
+    border: 3px solid var(--accent);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    user-select: none;
+    font-size: 1.15rem;
+    letter-spacing: 1.5px;
+  }
+
+  .info-link {
+    background: var(--accent);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 1rem;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 6px rgba(184,132,92,0.4);
+  }
+
+  .info-link:hover,
+  .info-link:focus {
+    background-color: var(--accent-dark);
+    outline: none;
+    box-shadow: 0 4px 12px rgba(180,132,92,0.7);
+  }
+
+  .github-link {
+    background: var(--accent);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 1rem;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 6px rgba(184, 132, 92, 0.4);
+  }
+
+  
+  .github-link:hover,
+  .github-link:focus {
+    background-color: var(--accent-dark);
+    outline: none;
+    box-shadow: 0 4px 12px rgba(180,132,92,0.7);
+  }
+
+  label {
+    font-weight: 700;
+    font-size: 1rem;
+    margin-top: 30px;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  /* Dropdown */
+  .dropdown {
+    position: relative;
+    user-select: none;
+    font-size: 1.1rem;
+    max-width: 100%;
+  }
+
+  .dropdown-header {
+    background: white;
+    border: 2.5px solid var(--accent);
+    border-radius: 8px;
+    padding: 14px 18px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    font-weight: 600;
+    color: var(--accent-dark);
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+  }
+
+  .dropdown-header:hover,
+  .dropdown.open .dropdown-header {
+    border-color: var(--accent-dark);
+    box-shadow: 0 0 12px rgba(184,132,92,0.5);
+  }
+
+  .dropdown-arrow {
+    font-weight: bold;
+    transition: transform 0.3s ease;
+    user-select: none;
+  }
+
+  .dropdown.open .dropdown-arrow {
+    transform: rotate(180deg);
+  }
+
+  .dropdown-list {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background: white;
+    border: 2.5px solid var(--accent);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    max-height: 0;
+    overflow-y: auto;
+    opacity: 0;
+    transition: max-height 0.35s ease, opacity 0.35s ease;
+    z-index: 15;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .dropdown.open .dropdown-list {
+    max-height: 280px;
+    opacity: 1;
+  }
+
+  .dropdown-item {
+    padding: 14px 18px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    font-weight: 500;
+    color: var(--accent-dark);
+  }
+
+  .dropdown-item:hover,
+  .dropdown-item:focus {
+    background: #f3eadc;
+    outline: none;
+  }
+
+  /* File Upload */
+  .file-upload {
+    position: relative;
+    display: block;
+  }
+
+  .file-upload input[type="file"] {
+    display: none;
+  }
+
+  .file-label {
+    background-color: var(--accent);
+    color: white;
+    padding: 14px 18px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-block;
+    text-align: center;
+    width: 100%;
+    font-size: 1.1rem;
+    font-weight: 700;
+    transition: background-color 0.3s ease;
+    user-select: none;
+    box-shadow: 0 3px 8px rgba(184,132,92,0.4);
+  }
+
+  .file-label:hover,
+  .file-label:focus {
+    background-color: var(--accent-dark);
+    outline: none;
+    box-shadow: 0 5px 16px rgba(180,132,92,0.7);
+  }
+
+  .file-name {
+    margin-top: 12px;
+    font-style: italic;
+    font-size: 0.95rem;
+    color: var(--accent-dark);
+    user-select: text;
+    text-align: center;
+    word-break: break-word;
+  }
+
+  /* Drop zone */
+  #drop-zone {
+    border: 2.5px dashed var(--accent);
+    border-radius: 8px;
+    padding: 30px 25px;
+    text-align: center;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    margin-bottom: 4px;
+    font-weight: 600;
+    color: var(--accent-dark);
+    font-size: 1rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+  }
+
+  #drop-zone.dragover {
+    background-color: #f0e4da;
+    border-color: var(--accent-dark);
+  }
+
+  /* Button */
+  button {
+    display: block;
+    width: 100%;
+    background: var(--accent-dark);
+    color: white;
+    padding: 16px;
+    font-size: 1.15rem;
+    border: none;
+    border-radius: 10px;
+    margin-top: 30px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.1s ease;
+    font-weight: 700;
+    box-shadow: 0 3px 8px rgba(180,132,92,0.7);
+  }
+
+  button:hover:not(:disabled) {
+    background: #9a6845;
+  }
+
+  button:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  /* Loading spinner on button */
+  button.loading {
+    position: relative;
+    pointer-events: none;
+    opacity: 0.8;
+  }
+
+  button.loading::after {
+    content: "";
+    position: absolute;
+    right: 18px;
+    top: 50%;
+    width: 18px;
+    height: 18px;
+    margin-top: -9px;
+    border: 3px solid white;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+  }
+
+  /* Output */
+  .output {
+    margin-top: 30px;
+    background: var(--soft);
+    padding: 20px 25px;
+    border-radius: 10px;
+    border: 3px solid var(--accent);
+    font-size: 1rem;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.07);
+    min-height: 85px;
+  }
+
+  .output strong {
+    color: var(--accent-dark);
+    font-weight: 700;
+  }
+
+  /* Footer */
+  footer {
+    text-align: center;
+    padding: 15px 20px;
+    background: var(--accent-dark);
+    color: #fff;
+    margin-top: 50px;
+    font-size: 0.95rem;
+    letter-spacing: 1.5px;
+    user-select: none;
+  }
+
+  /* Responsive tweaks */
+  @media (max-width: 480px) {
+    main {
+      padding: 30px 15px 40px;
+      max-width: 90vw;
+    }
+
+    .ascii-art {
+      font-size: 1rem;
+      padding: 18px 20px;
+      margin-bottom: 30px;
+    }
+
+    button {
+      font-size: 1rem;
+      padding: 14px;
+      margin-top: 25px;
+    }
+
+    .file-label {
+      font-size: 1rem;
+      padding: 12px 15px;
+    }
+  }
+
+  .button-row {
+  display: flex;
+  justify-content: center;
+  gap: 20px; /* space between buttons */
+  margin-bottom: 30px;
+}
+
+.button-row a {
+  flex: none; /* keep buttons sized by their content */
+}
+
+</style>
+<link rel="icon" href="/static/images/maia.ico" type="image/x-icon" />
+</head>
+<body>
+
+<header>MAIA - Medical AI Assistant</header>
+
+<main>
+  <div class="ascii-art" aria-label="MAIA logo in ASCII art">
+<pre>
+ __  __    _    ___    _    
+|  \/  |  /_\  |_ _|  /_\   
+| |\/| | //_\\  | |  //_\\  
+| |  | |/ ___ \ | | / ___ \ 
+|_|  |_/_/   \_\___/_/   \_\
+</pre>
+  </div>
+
+  <div class="button-row">
+  <a href="/info" class="info-link" tabindex="0">More Info about MAIA</a>
+  <a href="https://github.com/BloodRed3719/MAIA" class="github-link" tabindex="0">MAIA's GitHub</a>
+</div>
+
+  
+
+  <label for="modeDropdownHeader">Select Mode:</label>
+  <div class="dropdown" id="modeDropdown" role="listbox" aria-expanded="false" aria-labelledby="modeDropdownLabel">
+    <div class="dropdown-header" id="modeDropdownHeader" tabindex="0" aria-haspopup="listbox" aria-controls="modeDropdownList" aria-expanded="false">
+      <span id="dropdown-selected">Versions and Accuracy</span>
+      <span class="dropdown-arrow" aria-hidden="true">▼</span>
+    </div>
+    <div class="dropdown-list" id="modeDropdownList" role="listbox" tabindex="-1">
+      <div class="dropdown-item" role="option" data-value="1" tabindex="0">Versions and Accuracy</div>
+      <div class="dropdown-item" role="option" data-value="2" tabindex="0">Brain Tumor Detection</div>
+      <div class="dropdown-item" role="option" data-value="3" tabindex="0">Brain Tumor Classification</div>
+      <div class="dropdown-item" role="option" data-value="4" tabindex="0">Alzheimer's Impairment Classification</div>
+      <div class="dropdown-item" role="option" data-value="5" tabindex="0">COVID-19 Detection</div>
+      <div class="dropdown-item" role="option" data-value="6" tabindex="0">Fracture Detection</div>
+    </div>
+  </div>
+
+  <label for="image">Upload MRI Image:</label>
+  <div class="file-upload" id="drop-zone">
+    <input type="file" id="image" accept="image/*" aria-describedby="file-name" />
+    <label class="file-label" for="image" tabindex="0">Choose File</label>
+  </div>
+  <div id="file-name" class="file-name" aria-live="polite"></div>
+
+  <button id="submit-btn" onclick="simulatePrediction()" aria-live="polite">Submit</button>
+
+  <div class="output" id="output" aria-live="polite" aria-atomic="true">
+    <strong>Output:</strong>
+    <p id="mode-description">Brain MRI Tumor Detector: V1, ~60-70% accuracy<br>MRI Brain Tumor Classifier: V1, ~97-100% accuracy<br>Alzheimer's Impairment Classifier: V2, ~60-75% accuracy<br>COVID-19 Detection: V1, ~97-100% accuracy<br>Fracture Detection: V1, ~70-75%</p>
+  </div>
+</main>
+
+<footer>
+  &copy; 2025 MAIA Medical AI Interface
+</footer>
+
+<script>
+  const dropdown = document.getElementById('modeDropdown');
+  const selected = document.getElementById('dropdown-selected');
+  const description = document.getElementById('mode-description');
+  const imageInput = document.getElementById("image");
+  const output = document.getElementById("output");
+  const fileNameDisplay = document.getElementById("file-name");
+  const submitBtn = document.getElementById("submit-btn");
+
+  const modeDescriptions = {
+    1: "Displays the different versions of MAIA and their accuracy rates.",
+    2: "Detects the presence of brain tumors from MRI scans.",
+    3: "Classifies detected brain tumors into specific categories.",
+    4: "Identifies the level of cognitive impairment from Alzheimer's disease.",
+    5: "Detects COVID-19 from medical imaging.",
+    6: "Detects fractures in bones from medical imaging."
+  };
+
+  // Toggle dropdown open state
+  dropdown.querySelector('.dropdown-header').addEventListener('click', () => {
+    const isOpen = dropdown.classList.toggle('open');
+    dropdown.setAttribute('aria-expanded', isOpen);
+    dropdown.querySelector('.dropdown-header').setAttribute('aria-expanded', isOpen);
+  });
+
+  // Keyboard accessibility for dropdown
+  dropdown.querySelector('.dropdown-header').addEventListener('keydown', (e) => {
+    if(e.key === "Enter" || e.key === " "){
+      e.preventDefault();
+      dropdown.classList.toggle('open');
+      const isOpen = dropdown.classList.contains('open');
+      dropdown.setAttribute('aria-expanded', isOpen);
+      dropdown.querySelector('.dropdown-header').setAttribute('aria-expanded', isOpen);
+    }
+  });
+
+  // Dropdown item selection
+  dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+    item.addEventListener('click', () => {
+      selectMode(item);
+    });
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        selectMode(item);
+      }
+    });
+  });
+
+  function selectMode(item) {
+    selected.textContent = item.textContent;
+    description.textContent = modeDescriptions[item.dataset.value];
+    dropdown.classList.remove('open');
+    dropdown.dataset.value = item.dataset.value;
+    dropdown.setAttribute('aria-expanded', false);
+    dropdown.querySelector('.dropdown-header').setAttribute('aria-expanded', false);
+  }
+
+  // Show selected file name
+  imageInput.addEventListener('change', () => {
+    if (imageInput.files.length > 0) {
+      fileNameDisplay.textContent = `Selected file: ${imageInput.files[0].name}`;
+    } else {
+      fileNameDisplay.textContent = '';
+    }
+  });
+
+  // Drag & Drop handlers
+  const dropZone = document.getElementById('drop-zone');
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('dragover');
+  });
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('dragover');
+  });
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('dragover');
+    if(e.dataTransfer.files.length) {
+      imageInput.files = e.dataTransfer.files;
+      imageInput.dispatchEvent(new Event('change'));
+    }
+  });
+
+  async function simulatePrediction() {
+    const mode = dropdown.dataset.value || "1";
+
+    if (!imageInput.files.length) {
+      output.innerHTML = "<p style='color:red;'>Please upload an image.</p>";
+      return;
+    }
+
+    submitBtn.classList.add("loading");
+    submitBtn.disabled = true;
+
+    const formData = new FormData();
+    formData.append("image", imageInput.files[0]);
+    formData.append("mode", mode);
+
+    try {
+      const response = await fetch("/classify", {
+        method: "POST",
+        body: formData
+      });
+
+      const data = await response.json();
+
+      if (data.error) {
+        output.innerHTML = `<p style="color:red;">Error: ${data.error}</p>`;
+      } else {
+        output.innerHTML = `
+          <strong>Prediction:</strong> ${data.prediction}<br>
+          <strong>Confidence:</strong> ${data.confidence}<br>
+          <strong>ID:</strong> ${data.id}
+        `;
+      }
+    } catch (err) {
+      console.error(err);
+      output.innerHTML = "<p style='color:red;'>An error occurred while communicating with the server.</p>";
+    } finally {
+      submitBtn.classList.remove("loading");
+      submitBtn.disabled = false;
+    }
+  }
+</script>
+
+</body>
+</html>
