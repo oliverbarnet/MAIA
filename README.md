@@ -17,3 +17,4 @@ Versions:
 1.4.7f
 1.5.7 - Pneumonia Detection
 1.5.8
+1.5.9 - stable
