@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MAIA Dashboard</title>
+<style>
+  body {
+    font-family: 'Courier New', monospace;
+    background: #f5f3f0;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  header {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #b4845c;
+    text-align: center;
+    margin-bottom: 20px;
+    user-select: none;
+  }
+  section { margin-bottom: 40px; }
+  h2 {
+    border-bottom: 3px solid #b4845c;
+    padding-bottom: 6px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    border: 1.8px solid #d8b08c;
+    padding: 12px 8px;
+    text-align: left;
+  }
+  th {
+    background-color: #d8b08c;
+    color: #fff;
+  }
+  button, .btn-link {
+    background: #b4845c;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 16px;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(180,132,92,0.7);
+    transition: background-color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    user-select: none;
+    min-width: 100px;
+  }
+  button:hover, .btn-link:hover {
+    background: #9a6845;
+  }
+  .history-empty {
+    font-style: italic;
+    color: #666;
+    margin-top: 12px;
+  }
+  .footer {
+    margin-top: 60px;
+    text-align: center;
+    font-size: 0.9rem;
+    user-select: none;
+  }
+  .model-list {
+    list-style: none;
+    padding-left: 0;
+  }
+  .model-list li {
+    margin: 10px 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .actions {
+    display: flex;
+    gap: 12px;
+    margin-top: 10px;
+  }
+</style>
+</head>
+<body>
+
+<header>MAIA Dashboard</header>
+
+<section>
+  <h2>Available Models</h2>
+  <ul class="model-list" id="models-list">
+    <!-- Models loaded here by JS -->
+  </ul>
+</section>
+
+<section>
+  <h2>Recent Classification Results</h2>
+  <div id="history-container">
+    <p class="history-empty">No classification results yet.</p>
+  </div>
+  <div class="actions">
+    <button id="clear-history-btn">Clear History</button>
+    <a href="/" class="btn-link" role="button" tabindex="0">Back</a>
+  </div>
+</section>
+
+<div class="footer">
+  &copy; 2025 MAIA Medical AI Interface
+</div>
+
+<script>
+  const modelsList = document.getElementById('models-list');
+  const historyContainer = document.getElementById('history-container');
+  const clearBtn = document.getElementById('clear-history-btn');
+
+  async function fetchModelStatus() {
+    try {
+      const res = await fetch('/model_status');
+      if (!res.ok) throw new Error('Failed to fetch model status');
+      const status = await res.json();
+      renderModels(status);
+    } catch (e) {
+      modelsList.innerHTML = '<li>Error loading models status.</li>';
+    }
+  }
+
+  function renderModels(status) {
+    modelsList.innerHTML = '';
+    const modelNames = {
+      '2': "Brain Tumor Detection",
+      '3': "Brain Tumor Classification",
+      '4': "Alzheimer's Classification",
+      '5': "COVID-19 Detection",
+      '6': "Fracture Detection",
+      '7': "Eye Disease Classification",
+      "8": "Pneumonia Detection"
+    };
+    for (const [id, enabled] of Object.entries(status)) {
+      const li = document.createElement('li');
+      li.textContent = modelNames[id] || `Model ${id}`;
+
+      const btn = document.createElement('button');
+      btn.textContent = enabled ? 'Disable' : 'Enable';
+      btn.dataset.modelId = id;
+      btn.dataset.enabled = enabled;
+      btn.addEventListener('click', toggleModel);
+      li.appendChild(btn);
+
+      modelsList.appendChild(li);
+    }
+  }
+
+  async function toggleModel(e) {
+    const btn = e.target;
+    const modelId = btn.dataset.modelId;
+
+    try {
+      const res = await fetch(`/toggle_model/${modelId}`, { method: 'POST' });
+      if (!res.ok) throw new Error('Failed to toggle model');
+      const data = await res.json();
+
+      btn.textContent = data.enabled ? 'Disable' : 'Enable';
+      btn.dataset.enabled = data.enabled;
+    } catch (err) {
+      alert('Error toggling model status');
+    }
+  }
+
+  async function fetchHistory() {
+    try {
+      const res = await fetch('/history');
+      if (!res.ok) throw new Error('Failed to fetch history');
+      const history = await res.json();
+
+      if (history.length === 0) {
+        historyContainer.innerHTML = '<p class="history-empty">No classification results yet.</p>';
+        return;
+      }
+
+      let html = '<table><thead><tr><th>Model</th><th>Filename</th><th>Prediction</th><th>Confidence</th></tr></thead><tbody>';
+      for (const entry of history) {
+        html += `<tr>
+          <td>${entry.model}</td>
+          <td>${entry.filename}</td>
+          <td>${entry.prediction}</td>
+          <td>${entry.confidence}</td>
+        </tr>`;
+      }
+      html += '</tbody></table>';
+      historyContainer.innerHTML = html;
+    } catch {
+      historyContainer.innerHTML = '<p class="history-empty">Failed to load history.</p>';
+    }
+  }
+
+  clearBtn.addEventListener('click', async () => {
+    if (!confirm("Clear all history?")) return;
+    try {
+      const res = await fetch('/clear_history', { method: 'POST' });
+      if (!res.ok) throw new Error('Failed to clear history');
+      fetchHistory();
+    } catch {
+      alert("Failed to clear history");
+    }
+  });
+
+  fetchModelStatus();
+  fetchHistory();
+</script>
+
+</body>
+</html>
