@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MAIA Dashboard</title>
+<style>
+  body {
+    font-family: 'Courier New', monospace;
+    background: #f5f3f0;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  header {
+    font-size: 2rem;
+    font-weight: 900;
+    color: #b4845c;
+    text-align: center;
+    margin-bottom: 20px;
+    user-select: none;
+  }
+  section { margin-bottom: 40px; }
+  h2 {
+    border-bottom: 3px solid #b4845c;
+    padding-bottom: 6px;
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+  }
+  th, td {
+    border: 1.8px solid #d8b08c;
+    padding: 12px 8px;
+    text-align: left;
+  }
+  th {
+    background-color: #d8b08c;
+    color: #fff;
+  }
+  button {
+    background: #b4845c;
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 20px;
+    cursor: pointer;
+    box-shadow: 0 3px 8px rgba(180,132,92,0.7);
+    transition: background-color 0.3s ease;
+  }
+  button:hover { background: #9a6845; }
+  .history-empty {
+    font-style: italic;
+    color: #666;
+    margin-top: 12px;
+  }
+  .footer {
+    margin-top: 60px;
+    text-align: center;
+    font-size: 0.9rem;
+    user-select: none;
+  }
+
+  /* Overlay */
+  #password-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #222;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    z-index: 9999;
+    color: white;
+  }
+  #password-box {
+    background: #333;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    text-align: center;
+  }
+  #password-box h2 {
+    margin-bottom: 20px;
+  }
+  #password-input {
+    padding: 10px;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: none;
+    outline: none;
+    width: 200px;
+    margin-bottom: 10px;
+  }
+  #password-submit {
+    padding: 10px 20px;
+    font-size: 1rem;
+    border-radius: 6px;
+    border: none;
+    background: #b4845c;
+    color: white;
+    cursor: pointer;
+    font-weight: bold;
+  }
+  #password-submit:hover {
+    background: #9a6845;
+  }
+</style>
+</head>
+<body>
+
+<!-- Password Overlay -->
+<div id="password-overlay">
+  <div id="password-box">
+    <h2>Enter Password</h2>
+    <input type="password" id="password-input" placeholder="Password">
+    <br>
+    <button id="password-submit">Unlock</button>
+    <p id="password-error" style="color:red;display:none;margin-top:10px;">Incorrect password</p>
+  </div>
+</div>
+
+<header>MAIA Dashboard</header>
+
+<section>
+  <h2>Available Models</h2>
+  <ul>
+    <li>Brain Tumor Detection</li>
+    <li>Brain Tumor Classification</li>
+    <li>Alzheimer's Classification</li>
+    <li>COVID-19 Detection</li>
+    <li>Fracture Detection</li>
+    <li>Eye Disease Classification</li>
+  </ul>
+</section>
+
+<section>
+  <h2>Recent Classification Results</h2>
+  <div id="history-container">
+    <p class="history-empty">No classification results yet.</p>
+  </div>
+  <button id="clear-history-btn">Clear History</button>
+</section>
+
+<div class="footer">
+  &copy; 2025 MAIA Medical AI Interface
+</div>
+
+<script>
+  const PASSWORD = " "; // change to your password
+  const overlay = document.getElementById("password-overlay");
+  const input = document.getElementById("password-input");
+  const submit = document.getElementById("password-submit");
+  const errorMsg = document.getElementById("password-error");
+
+  submit.addEventListener("click", checkPassword);
+  input.addEventListener("keypress", (e) => {
+    if (e.key === "Enter") checkPassword();
+  });
+
+  function checkPassword() {
+    if (input.value === PASSWORD) {
+      overlay.style.display = "none";
+      fetchHistory();
+    } else {
+      errorMsg.style.display = "block";
+    }
+  }
+
+  const historyContainer = document.getElementById('history-container');
+  const clearBtn = document.getElementById('clear-history-btn');
+
+  async function fetchHistory() {
+    try {
+      const res = await fetch('/history');
+      const history = await res.json();
+
+      if (history.length === 0) {
+        historyContainer.innerHTML = '<p class="history-empty">No classification results yet.</p>';
+        return;
+      }
+
+      let html = '<table><thead><tr><th>Model</th><th>Filename</th><th>Prediction</th><th>Confidence</th></tr></thead><tbody>';
+      for (const entry of history) {
+        html += `<tr>
+          <td>${entry.model}</td>
+          <td>${entry.filename}</td>
+          <td>${entry.prediction}</td>
+          <td>${entry.confidence}</td>
+        </tr>`;
+      }
+      html += '</tbody></table>';
+      historyContainer.innerHTML = html;
+    } catch (err) {
+      historyContainer.innerHTML = '<p class="history-empty">Failed to load history.</p>';
+    }
+  }
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', async () => {
+      if (!confirm("Clear all history?")) return;
+      try {
+        await fetch('/clear_history', { method: 'POST' });
+        fetchHistory();
+      } catch {
+        alert("Failed to clear history");
+      }
+    });
+  }
+</script>
+
+</body>
+</html>
