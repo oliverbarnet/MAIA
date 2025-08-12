@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>MAIA Info</title>
+<style>
+    :root {
+    --bg: #f5f3f0;
+    --accent: #d8b08c;
+    --accent-dark: #b4845c;
+    --text: #333;
+    --soft: #e8e6e4;
+  }
+    button {
+    display: block;
+    width: 100%;
+    background: var(--accent-dark);
+    color: white;
+    padding: 16px;
+    font-size: 1.15rem;
+    border: none;
+    border-radius: 10px;
+    margin-top: 30px;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.1s ease;
+    font-weight: 700;
+    box-shadow: 0 3px 8px rgba(180,132,92,0.7);
+  }
+
+  button:hover:not(:disabled) {
+    background: #9a6845;
+  }
+
+  button:active:not(:disabled) {
+    transform: scale(0.97);
+  }
+
+  button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  body {
+    font-family: 'Courier New', monospace;
+    background: #f5f3f0;
+    color: #333;
+    margin: 0;
+    padding: 40px 20px;
+    max-width: 700px;
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
+  h1 {
+    color: #b4845c;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+  p {
+    font-size: 16px;
+    line-height: 1.5;
+  }
+  a {
+    display: inline-block;
+    margin-top: 30px;
+    background-color: #d8b08c;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: bold;
+  }
+  a:hover {
+    background-color: #b4845c;
+  }
+
+.info-link {
+    background: var(--accent);
+    color: white;
+    padding: 12px 28px;
+    border-radius: 8px;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 1rem;
+    display: inline-block;
+    transition: background-color 0.3s ease;
+    box-shadow: 0 2px 6px rgba(184,132,92,0.4);
+  }
+
+  .info-link:hover,
+  .info-link:focus {
+    background-color: var(--accent-dark);
+    outline: none;
+    box-shadow: 0 4px 12px rgba(180,132,92,0.7);
+  }
+</style>
+<link rel="icon" href="/static/images/maia.ico" type="image/x-icon" />
+
+</head>
+<body>
+
+<h1>About MAIA</h1>
+
+<p>MAIA (Medical AI Assistant) is a specialized AI system designed to assist with medical image analysis, including brain MRI tumor detection, classification, Alzheimer's impairment identification, and COVID-19 detection from medical images.</p>
+
+<p>The system uses several trained neural network models optimized for the NVIDIA Jetson platform, delivering fast and accurate predictions to support medical professionals.</p>
+
+<p>You can upload your MRI images on the main page and select the analysis mode. MAIA will process the image and provide a prediction with confidence scores.</p>
+<br>
+<p>Any images uploaded can be viewed</p>
+<br><br>
+<p>Current version: V1.6.0f</p>
+<a href="/" class="info-link">← Back to Main Interface</a>
+
+</body>
+</html>
