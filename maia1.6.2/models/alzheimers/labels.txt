@@ -1,0 +1,4 @@
+mild
+moderate
+none
+verymild
